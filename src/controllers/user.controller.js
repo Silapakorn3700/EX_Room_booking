@@ -119,12 +119,12 @@ exports.updateUser = async (req, res) => {
     });
   }
 
-  if (!name || typeof email !== 'string') {
+  if (!name) {
     return res.status(400).json({
       status: 'error',
       message: 'Invalid request body',
       error: {
-        detail: 'name is required and email must be a string',
+        detail: 'name is required',
       },
     });
   }
