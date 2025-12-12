@@ -3,7 +3,10 @@ const prisma = require('../prisma');
 // GET /rooms
 exports.getRooms = async (req, res) => {
   try {
-    const rooms = await prisma.room.findMany();
+    const rooms = await prisma.room.findMany({
+      select: { id:true, name:true, building:true },
+      // where: { id: {not:2} } //lt, ,te, gt, gte, ne
+    });
 
     res.json({
       status: 'success',
@@ -33,6 +36,7 @@ exports.getRoomById = async (req, res) => {
 
   try {
     const room = await prisma.room.findUnique({
+      select: {id:true , name:true, capacity:true }, //projection
       where: { id: roomId },
     });
 
@@ -189,4 +193,32 @@ exports.deleteRoom = async (req, res) => {
       error: { detail: 'Unable to delete room' },
     });
   }
+};
+
+exports.getRoomsByCapacity = async (req,res) => {
+  const capacity = parseInt(req.params.capacity, 0);
+  const rooms = await prisma.room.findMany({
+    where: { capacity: { gte: capacity}},
+  });
+
+  res.json({
+    status: 'success',
+    message: 'Rooms retrieved successfully',
+    data: rooms,
+  });
+};
+
+exports.getRoomsByCapacityRange = async (req,res) => {
+  const min = parseInt(req.params.min, 0);
+  const max = parseInt(req.params.max, 0);
+  const rooms = await prisma.room.findMany({
+    where: { capacity: { gte: min, lte: max}},
+    orderBy: { capacity:'asc' }
+  });
+
+  res.json({
+    status: 'success',
+    message: 'Rooms retrieved successfully',
+    data: rooms,
+  });
 };
